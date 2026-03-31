@@ -3,7 +3,6 @@ import { useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { CalendarDays } from "lucide-react";
 
 import { useLogin, useGetMe, getGetMeQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -77,10 +76,8 @@ export default function Login() {
       
       <Card className="w-full max-w-md border-none shadow-xl">
         <CardHeader className="space-y-3 pb-8 text-center pt-8">
-          <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-2 shadow-lg shadow-primary/20">
-            <CalendarDays className="w-8 h-8 text-primary-foreground" />
-          </div>
-          <CardTitle className="text-3xl font-bold tracking-tight">Welcome back</CardTitle>
+          <img src="/logo.png" alt="Autism Plus" className="w-24 h-24 object-contain mx-auto mb-2 drop-shadow-md" />
+          <CardTitle className="text-3xl font-bold tracking-tight">Autism Plus</CardTitle>
           <CardDescription className="text-base text-muted-foreground">
             Sign in to manage your appointments
           </CardDescription>

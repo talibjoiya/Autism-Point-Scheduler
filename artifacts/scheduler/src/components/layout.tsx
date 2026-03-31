@@ -50,12 +50,13 @@ export function Layout({ children }: LayoutProps) {
   const NavLinks = () => (
     <>
       <div className="mb-8 px-4">
-        <h1 className="text-xl font-bold text-sidebar-primary-foreground flex items-center gap-2">
-          <div className="w-8 h-8 rounded bg-sidebar-primary flex items-center justify-center">
-            <CalendarDays className="w-5 h-5 text-sidebar-primary-foreground" />
+        <div className="flex items-center gap-3">
+          <img src="/logo.png" alt="Autism Plus" className="w-10 h-10 object-contain" />
+          <div>
+            <h1 className="text-base font-bold text-sidebar-primary-foreground leading-tight">Autism Plus</h1>
+            <p className="text-xs text-sidebar-foreground/60 leading-tight">Appointment Scheduler</p>
           </div>
-          Scheduler
-        </h1>
+        </div>
       </div>
       <nav className="flex-1 space-y-1 px-2">
         {navItems.map((item) => {
@@ -113,10 +114,8 @@ export function Layout({ children }: LayoutProps) {
       <div className="flex-1 flex flex-col min-w-0">
         <header className="md:hidden flex items-center justify-between p-4 bg-card border-b border-border">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded bg-primary flex items-center justify-center">
-              <CalendarDays className="w-5 h-5 text-primary-foreground" />
-            </div>
-            <span className="font-bold">Scheduler</span>
+            <img src="/logo.png" alt="Autism Plus" className="w-8 h-8 object-contain" />
+            <span className="font-bold text-sm">Autism Plus</span>
           </div>
           <Sheet>
             <SheetTrigger asChild>
