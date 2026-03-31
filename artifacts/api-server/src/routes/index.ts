@@ -5,6 +5,7 @@ import usersRouter from "./users";
 import servicesRouter from "./services";
 import timeslotsRouter from "./timeslots";
 import statsRouter from "./stats";
+import eventsRouter from "./events";
 
 const router: IRouter = Router();
 
@@ -14,5 +15,6 @@ router.use("/users", usersRouter);
 router.use("/services", servicesRouter);
 router.use("/timeslots", timeslotsRouter);
 router.use("/stats", statsRouter);
+router.use("/events", eventsRouter);
 
 export default router;

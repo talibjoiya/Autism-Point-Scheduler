@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useActivityEvents } from "@/hooks/use-activity-events";
 
 interface LayoutProps {
   children: ReactNode;
@@ -24,7 +25,8 @@ export function Layout({ children }: LayoutProps) {
   const { user } = useAuth();
   const [location, setLocation] = useLocation();
   const logoutMutation = useLogout();
-  
+  useActivityEvents();
+
   const { data: health } = useHealthCheck({
     query: {
       refetchInterval: 60000,

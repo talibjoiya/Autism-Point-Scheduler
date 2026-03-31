@@ -1,6 +1,7 @@
 import { Router, type IRouter } from "express";
 import { db, timeslotsTable, usersTable, servicesTable } from "@workspace/db";
 import { eq, and, gte, lte, count } from "drizzle-orm";
+import { broadcast } from "../lib/broadcaster";
 
 const router: IRouter = Router();
 
@@ -61,6 +62,8 @@ router.post("/", async (req, res) => {
       notes,
     }).returning();
     const enriched = await enrichTimeslot(slot);
+    broadcast("timeslot", { action: "created", id: slot.id });
+    broadcast("stats", {});
     res.status(201).json(enriched);
   } catch (err) {
     req.log.error(err);
@@ -132,6 +135,7 @@ router.put("/:id", async (req, res) => {
       return;
     }
     const enriched = await enrichTimeslot(updated);
+    broadcast("timeslot", { action: "updated", id: updated.id });
     res.json(enriched);
   } catch (err) {
     req.log.error(err);
@@ -143,6 +147,8 @@ router.delete("/:id", async (req, res) => {
   try {
     const id = Number(req.params.id);
     await db.delete(timeslotsTable).where(eq(timeslotsTable.id, id));
+    broadcast("timeslot", { action: "deleted", id });
+    broadcast("stats", {});
     res.json({ success: true, message: "Timeslot deleted" });
   } catch (err) {
     req.log.error(err);
@@ -164,6 +170,8 @@ router.patch("/:id/status", async (req, res) => {
       return;
     }
     const enriched = await enrichTimeslot(updated);
+    broadcast("timeslot", { action: "status_updated", id: updated.id, status: updated.status });
+    broadcast("stats", {});
     res.json(enriched);
   } catch (err) {
     req.log.error(err);

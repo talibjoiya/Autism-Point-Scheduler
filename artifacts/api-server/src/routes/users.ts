@@ -1,6 +1,7 @@
 import { Router, type IRouter } from "express";
 import { db, usersTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
+import { broadcast } from "../lib/broadcaster";
 
 const router: IRouter = Router();
 
@@ -45,6 +46,8 @@ router.post("/", async (req, res) => {
       return;
     }
     const [user] = await db.insert(usersTable).values({ name, email, password, role, phone }).returning();
+    broadcast("user", { action: "created", id: user.id });
+    broadcast("stats", {});
     res.status(201).json(sanitizeUser(user));
   } catch (err) {
     req.log.error(err);
@@ -81,6 +84,7 @@ router.put("/:id", async (req, res) => {
       res.status(404).json({ error: "User not found" });
       return;
     }
+    broadcast("user", { action: "updated", id: updated.id });
     res.json(sanitizeUser(updated));
   } catch (err) {
     req.log.error(err);
@@ -92,6 +96,8 @@ router.delete("/:id", async (req, res) => {
   try {
     const id = Number(req.params.id);
     await db.delete(usersTable).where(eq(usersTable.id, id));
+    broadcast("user", { action: "deleted", id });
+    broadcast("stats", {});
     res.json({ success: true, message: "User deleted" });
   } catch (err) {
     req.log.error(err);
