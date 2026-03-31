@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from "@/lib/auth-context";
 import NotFound from "@/pages/not-found";
 import Login from "@/pages/login";
 import Dashboard from "@/pages/dashboard";
+import Users from "@/pages/users";
 import Clients from "@/pages/clients";
 import Professionals from "@/pages/professionals";
 import Services from "@/pages/services";
@@ -32,6 +33,7 @@ function Router() {
       <Route path="/login" component={Login} />
       
       <Route path="/dashboard" component={Dashboard} />
+      <Route path="/users" component={Users} />
       <Route path="/clients" component={Clients} />
       <Route path="/professionals" component={Professionals} />
       <Route path="/services" component={Services} />

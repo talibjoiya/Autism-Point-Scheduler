@@ -1,4 +1,4 @@
-# Workspace
+# Appointment Scheduler
 
 ## Overview
 

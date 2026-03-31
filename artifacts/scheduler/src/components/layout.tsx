@@ -10,7 +10,8 @@ import {
   Briefcase,
   LogOut,
   Menu,
-  Activity
+  Activity,
+  UsersRound,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -39,6 +40,7 @@ export function Layout({ children }: LayoutProps) {
     ...(user?.role === "admin" ? [{ name: "Dashboard", href: "/dashboard", icon: LayoutDashboard }] : []),
     { name: "Timeslots", href: "/timeslots", icon: CalendarDays },
     ...(user?.role === "admin" ? [
+      { name: "User Management", href: "/users", icon: UsersRound },
       { name: "Clients", href: "/clients", icon: Users },
       { name: "Professionals", href: "/professionals", icon: UserSquare2 },
       { name: "Services", href: "/services", icon: Briefcase },
