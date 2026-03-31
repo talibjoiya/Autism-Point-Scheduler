@@ -14,7 +14,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Plus, Trash2, Clock, DollarSign, Edit } from "lucide-react";
+import { Plus, Trash2, Clock, Edit } from "lucide-react";
+import { formatCurrency, CURRENCY_SYMBOL } from "@/lib/locale";
 
 import { Button } from "@/components/ui/button";
 import { Table, TableBody as Body, TableCell as Cell, TableHead as Head, TableHeader as Header, TableRow as Row } from "@/components/ui/table";
@@ -96,7 +97,7 @@ function EditServiceDialog({ id, open, onOpenChange }: { id: number, open: boole
                   <FormItem><FormLabel>Duration (min)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="price" render={({ field }) => (
-                  <FormItem><FormLabel>Price ($)</FormLabel><FormControl><Input type="number" step="0.01" {...field} /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>Price ({CURRENCY_SYMBOL})</FormLabel><FormControl><Input type="number" step="1" {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
               </div>
               <Button type="submit" className="w-full mt-4" disabled={updateMutation.isPending}>
@@ -175,7 +176,7 @@ function ServicesContent() {
                     <FormItem><FormLabel>Duration (min)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
                   )} />
                   <FormField control={form.control} name="price" render={({ field }) => (
-                    <FormItem><FormLabel>Price ($)</FormLabel><FormControl><Input type="number" step="0.01" {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem><FormLabel>Price ({CURRENCY_SYMBOL})</FormLabel><FormControl><Input type="number" step="1" {...field} /></FormControl><FormMessage /></FormItem>
                   )} />
                 </div>
                 <Button type="submit" className="w-full mt-4" disabled={createMutation.isPending}>
@@ -220,9 +221,8 @@ function ServicesContent() {
                     </div>
                   </Cell>
                   <Cell>
-                    <div className="flex items-center gap-1 text-sm font-medium">
-                      <DollarSign className="w-4 h-4 text-muted-foreground" />
-                      {service.price ? service.price.toFixed(2) : "Free"}
+                    <div className="text-sm font-medium">
+                      {formatCurrency(service.price)}
                     </div>
                   </Cell>
                   <Cell className="text-right">

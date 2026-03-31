@@ -13,7 +13,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { ArrowLeft, Calendar as CalendarIcon, Clock } from "lucide-react";
-import { format, addMinutes } from "date-fns";
+import { addMinutes, format } from "date-fns";
+import { CURRENCY_SYMBOL } from "@/lib/locale";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -213,7 +214,7 @@ function NewTimeslotContent() {
                       <SelectContent>
                         {services.map(service => (
                           <SelectItem key={service.id} value={String(service.id)}>
-                            {service.name} ({service.durationMinutes} min - ${service.price || 0})
+                            {service.name} ({service.durationMinutes} min - {CURRENCY_SYMBOL}{service.price || 0})
                           </SelectItem>
                         ))}
                       </SelectContent>

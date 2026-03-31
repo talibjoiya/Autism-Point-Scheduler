@@ -8,7 +8,7 @@ import {
 import { Layout } from "@/components/layout";
 import { useAuth, RequireAuth } from "@/lib/auth-context";
 import { useQueryClient } from "@tanstack/react-query";
-import { format } from "date-fns";
+import { formatDate, formatTime } from "@/lib/locale";
 import { Calendar as CalendarIcon, Clock, CheckCircle2, XCircle, MoreVertical, Plus, Trash2 } from "lucide-react";
 import { Link } from "wouter";
 
@@ -133,7 +133,7 @@ function TimeslotsContent() {
                       <div className="font-semibold text-lg">{slot.serviceName}</div>
                       <div className="flex items-center text-sm text-muted-foreground gap-2">
                         <Clock className="w-4 h-4" />
-                        {format(start, "MMM d, yyyy")} • {format(start, "h:mm a")} - {format(end, "h:mm a")}
+                        {formatDate(start)} • {formatTime(start)} - {formatTime(end)}
                       </div>
                     </div>
                     

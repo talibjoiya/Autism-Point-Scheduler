@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Link } from "wouter";
-import { format, subDays, startOfDay, isSameDay } from "date-fns";
+import { formatFullDate, formatDateShort, formatDayOfWeek, formatDateTime, isSamePKTDay, subDaysPKT } from "@/lib/locale";
 import {
   useGetStatsOverview,
   useListTimeslots,
@@ -128,11 +128,11 @@ function DashboardContent() {
 
   const last7Days = useMemo(() => {
     return Array.from({ length: 7 }, (_, i) => {
-      const day = subDays(new Date(), 6 - i);
-      const daySlots = timeslots.filter((s) => isSameDay(new Date(s.startTime), day));
+      const day = subDaysPKT(new Date(), 6 - i);
+      const daySlots = timeslots.filter((s) => isSamePKTDay(new Date(s.startTime), day));
       return {
-        day: format(day, "EEE"),
-        date: format(day, "MMM d"),
+        day: formatDayOfWeek(day),
+        date: formatDateShort(day),
         scheduled: daySlots.filter((s) => s.status === "scheduled").length,
         done: daySlots.filter((s) => s.status === "done").length,
         cancelled: daySlots.filter((s) => s.status === "cancelled").length,
@@ -245,7 +245,7 @@ function DashboardContent() {
             Welcome back, {user?.name?.split(" ")[0]}
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            {format(new Date(), "EEEE, MMMM d yyyy")} — Here's what's happening today.
+            {formatFullDate(new Date())} — Here's what's happening today.
           </p>
         </div>
         <div className="flex gap-2">
@@ -414,7 +414,7 @@ function DashboardContent() {
                     </div>
                     <div className="flex items-center gap-3 flex-shrink-0 ml-3">
                       <span className="text-xs text-muted-foreground hidden sm:block">
-                        {format(new Date(slot.startTime), "MMM d, h:mm a")}
+                        {formatDateTime(slot.startTime)}
                       </span>
                       <span
                         className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
