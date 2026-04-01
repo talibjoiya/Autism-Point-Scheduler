@@ -53,9 +53,9 @@ export function Layout({ children }: LayoutProps) {
     <>
       <div className="mb-8 px-4">
         <div className="flex items-center gap-3">
-          <img src="/logo.png" alt="Autism Plus" className="w-10 h-10 object-contain" />
+          <img src="/logo.png" alt="Autism Point" className="w-10 h-10 object-contain" />
           <div>
-            <h1 className="text-base font-bold text-sidebar-primary-foreground leading-tight">Autism Plus</h1>
+            <h1 className="text-base font-bold text-sidebar-primary-foreground leading-tight">Autism Point</h1>
             <p className="text-xs text-sidebar-foreground/60 leading-tight">Appointment Scheduler</p>
           </div>
         </div>
@@ -116,8 +116,8 @@ export function Layout({ children }: LayoutProps) {
       <div className="flex-1 flex flex-col min-w-0">
         <header className="md:hidden flex items-center justify-between p-4 bg-card border-b border-border">
           <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="Autism Plus" className="w-8 h-8 object-contain" />
-            <span className="font-bold text-sm">Autism Plus</span>
+            <img src="/logo.png" alt="Autism Point" className="w-8 h-8 object-contain" />
+            <span className="font-bold text-sm">Autism Point</span>
           </div>
           <Sheet>
             <SheetTrigger asChild>
