@@ -123,9 +123,7 @@ function UsersContent() {
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [deletingUser, setDeletingUser] = useState<User | null>(null);
 
-  const { data: users = [], isLoading } = useListUsers(
-    roleFilter !== "all" ? { role: roleFilter } : undefined
-  );
+  const { data: allUsers = [], isLoading } = useListUsers();
 
   const createMutation = useCreateUser({
     mutation: {
@@ -235,18 +233,19 @@ function UsersContent() {
     }
   };
 
-  const filtered = users.filter((u) => {
+  const roleCounts = {
+    all: allUsers.length,
+    admin: allUsers.filter((u) => u.role === "admin").length,
+    professional: allUsers.filter((u) => u.role === "professional").length,
+    client: allUsers.filter((u) => u.role === "client").length,
+  };
+
+  const filtered = allUsers.filter((u) => {
+    if (roleFilter !== "all" && u.role !== roleFilter) return false;
     if (!search) return true;
     const q = search.toLowerCase();
     return u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q) || (u.phone?.toLowerCase().includes(q) ?? false);
   });
-
-  const roleCounts = {
-    all: users.length,
-    admin: users.filter((u) => u.role === "admin").length,
-    professional: users.filter((u) => u.role === "professional").length,
-    client: users.filter((u) => u.role === "client").length,
-  };
 
   const isPending = createMutation.isPending || updateMutation.isPending;
 
@@ -282,7 +281,7 @@ function UsersContent() {
             <span className={`ml-2 text-xs rounded-full px-1.5 py-0.5 ${
               roleFilter === tab.value ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
             }`}>
-              {roleFilter === "all" ? roleCounts.all : roleCounts[tab.value]}
+              {roleCounts[tab.value]}
             </span>
           </button>
         ))}
