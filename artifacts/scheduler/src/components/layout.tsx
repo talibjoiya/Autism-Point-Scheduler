@@ -12,6 +12,7 @@ import {
   Menu,
   Activity,
   UsersRound,
+  BarChart2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -46,6 +47,7 @@ export function Layout({ children }: LayoutProps) {
       { name: "Clients", href: "/clients", icon: Users },
       { name: "Professionals", href: "/professionals", icon: UserSquare2 },
       { name: "Services", href: "/services", icon: Briefcase },
+      { name: "Reports", href: "/reports", icon: BarChart2 },
     ] : []),
   ];
 

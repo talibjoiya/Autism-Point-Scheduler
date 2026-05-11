@@ -13,6 +13,7 @@ import Professionals from "@/pages/professionals";
 import Services from "@/pages/services";
 import Timeslots from "@/pages/timeslots";
 import NewTimeslot from "@/pages/timeslots/new";
+import Reports from "@/pages/reports";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +41,7 @@ function Router() {
       
       <Route path="/timeslots" component={Timeslots} />
       <Route path="/timeslots/new" component={NewTimeslot} />
+      <Route path="/reports" component={Reports} />
       
       <Route component={NotFound} />
     </Switch>
