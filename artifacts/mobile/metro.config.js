@@ -1,3 +1,10 @@
 const { getDefaultConfig } = require("expo/metro-config");
 
-module.exports = getDefaultConfig(__dirname);
+const config = getDefaultConfig(__dirname);
+
+config.server = {
+  ...config.server,
+  publicPath: "/mobile/",
+};
+
+module.exports = config;
