@@ -337,6 +337,38 @@ export const UpdateTimeslotStatusResponse = zod.object({
 });
 
 /**
+ * @summary List comments for a completed appointment
+ */
+export const ListTimeslotCommentsParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const ListTimeslotCommentsResponseItem = zod.object({
+  id: zod.number(),
+  timeslotId: zod.number(),
+  professionalId: zod.number(),
+  professionalName: zod.string(),
+  content: zod.string(),
+  createdAt: zod.coerce.date(),
+});
+export const ListTimeslotCommentsResponse = zod.array(
+  ListTimeslotCommentsResponseItem,
+);
+
+/**
+ * @summary Post a professional comment on a completed appointment
+ */
+export const CreateTimeslotCommentParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const createTimeslotCommentBodyContentMax = 2000;
+
+export const CreateTimeslotCommentBody = zod.object({
+  content: zod.string().min(1).max(createTimeslotCommentBodyContentMax),
+});
+
+/**
  * @summary Get scheduling stats overview (admin/professional)
  */
 export const GetStatsOverviewResponse = zod.object({

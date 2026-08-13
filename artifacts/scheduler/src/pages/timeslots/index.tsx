@@ -3,13 +3,16 @@ import {
   useListTimeslots, 
   useUpdateTimeslotStatus, 
   useDeleteTimeslot,
-  getListTimeslotsQueryKey 
+  getListTimeslotsQueryKey,
+  getListTimeslotCommentsQueryKey,
+  useListTimeslotComments,
+  useCreateTimeslotComment,
 } from "@workspace/api-client-react";
 import { Layout } from "@/components/layout";
 import { useAuth, RequireAuth } from "@/lib/auth-context";
 import { useQueryClient } from "@tanstack/react-query";
 import { formatDate, formatTime } from "@/lib/locale";
-import { Calendar as CalendarIcon, Clock, CheckCircle2, XCircle, MoreVertical, Plus, Trash2 } from "lucide-react";
+import { Calendar as CalendarIcon, Clock, CheckCircle2, XCircle, MoreVertical, Plus, Trash2, MessageCircle, Send } from "lucide-react";
 import { Link } from "wouter";
 
 import { Button } from "@/components/ui/button";
@@ -22,6 +25,7 @@ import {
   DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function Timeslots() {
   return (
@@ -156,6 +160,13 @@ function TimeslotsContent() {
                         {(user?.role === "professional" || user?.role === "client") && (slot.notes || "No notes")}
                       </div>
                     </div>
+
+                    {slot.status === "done" && (
+                      <TimeslotComments
+                        slotId={slot.id}
+                        canPost={user?.role === "professional"}
+                      />
+                    )}
                   </div>
 
                   <div className="flex items-center justify-between sm:flex-col sm:items-end sm:justify-center gap-3 mt-2 sm:mt-0 pt-4 sm:pt-0 border-t sm:border-t-0 border-border">
@@ -200,6 +211,98 @@ function TimeslotsContent() {
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+function TimeslotComments({ slotId, canPost }: { slotId: number; canPost: boolean }) {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [content, setContent] = useState("");
+  const { data: comments = [], isLoading } = useListTimeslotComments(slotId);
+  const createCommentMutation = useCreateTimeslotComment();
+
+  const handleSubmit = async () => {
+    const trimmed = content.trim();
+    if (!trimmed) return;
+
+    try {
+      await createCommentMutation.mutateAsync({
+        id: slotId,
+        data: { content: trimmed },
+      });
+      setContent("");
+      await queryClient.invalidateQueries({
+        queryKey: getListTimeslotCommentsQueryKey(slotId),
+      });
+      toast({ title: "Comment posted" });
+    } catch (error: unknown) {
+      toast({
+        title: "Unable to post comment",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  return (
+    <div className="md:col-span-3 mt-1 rounded-lg border border-border/70 bg-muted/30 p-4">
+      <div className="flex items-center justify-between gap-3 mb-3">
+        <div className="flex items-center gap-2 text-sm font-semibold">
+          <MessageCircle className="w-4 h-4 text-secondary" />
+          Comments
+          <span className="text-xs font-normal text-muted-foreground">
+            {comments.length}
+          </span>
+        </div>
+        {isLoading && (
+          <span className="text-xs text-muted-foreground">Loading…</span>
+        )}
+      </div>
+
+      {comments.length > 0 ? (
+        <div className="space-y-2">
+          {comments.map((comment) => (
+            <div key={comment.id} className="rounded-md bg-background px-3 py-2">
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-xs font-semibold">{comment.professionalName}</span>
+                <span className="text-[11px] text-muted-foreground">
+                  {new Date(comment.createdAt).toLocaleDateString()}
+                </span>
+              </div>
+              <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap">
+                {comment.content}
+              </p>
+            </div>
+          ))}
+        </div>
+      ) : (
+        !isLoading && (
+          <p className="text-sm text-muted-foreground">No comments yet.</p>
+        )
+      )}
+
+      {canPost && (
+        <div className="flex items-end gap-2 mt-3">
+          <Textarea
+            value={content}
+            onChange={(event) => setContent(event.target.value)}
+            placeholder="Add a follow-up comment…"
+            maxLength={2000}
+            rows={2}
+            className="min-h-0 resize-none bg-background"
+          />
+          <Button
+            type="button"
+            size="icon"
+            onClick={handleSubmit}
+            disabled={!content.trim() || createCommentMutation.isPending}
+            aria-label="Post comment"
+          >
+            <Send className="w-4 h-4" />
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

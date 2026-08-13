@@ -1,7 +1,13 @@
-import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React, { useState } from "react";
+import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { Feather } from "@expo/vector-icons";
+import {
+  getListTimeslotCommentsQueryKey,
+  useCreateTimeslotComment,
+  useListTimeslotComments,
+} from "@workspace/api-client-react";
 import type { Timeslot } from "@workspace/api-client-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useColors } from "@/hooks/useColors";
 import { StatusBadge } from "./StatusBadge";
 
@@ -94,6 +100,8 @@ export function TimeslotCard({ slot, onPress, onStatusChange, onDelete, role }: 
         </Text>
       ) : null}
 
+      <AppointmentComments slot={slot} role={role} />
+
       {(role === "professional" || role === "admin") &&
         slot.status === "scheduled" && (
           <View style={styles.actions}>
@@ -137,6 +145,127 @@ export function TimeslotCard({ slot, onPress, onStatusChange, onDelete, role }: 
         </View>
       )}
     </TouchableOpacity>
+  );
+}
+
+function AppointmentComments({ slot, role }: { slot: Timeslot; role?: string }) {
+  const colors = useColors();
+  const queryClient = useQueryClient();
+  const [content, setContent] = useState("");
+  const commentsQuery = useListTimeslotComments(slot.id, {
+    query: {
+      enabled: slot.status === "done",
+      queryKey: getListTimeslotCommentsQueryKey(slot.id),
+    },
+  });
+  const createCommentMutation = useCreateTimeslotComment();
+
+  if (slot.status !== "done") return null;
+
+  const comments = commentsQuery.data ?? [];
+
+  const handleSubmit = async () => {
+    const trimmed = content.trim();
+    if (!trimmed) return;
+
+    try {
+      await createCommentMutation.mutateAsync({
+        id: slot.id,
+        data: { content: trimmed },
+      });
+      setContent("");
+      await queryClient.invalidateQueries({
+        queryKey: getListTimeslotCommentsQueryKey(slot.id),
+      });
+    } catch (error: unknown) {
+      Alert.alert(
+        "Unable to post comment",
+        error instanceof Error ? error.message : "Please try again.",
+      );
+    }
+  };
+
+  return (
+    <View style={[styles.comments, { borderTopColor: colors.border }]}>
+      <View style={styles.commentsHeading}>
+        <View style={styles.commentsTitleRow}>
+          <Feather name="message-circle" size={14} color={colors.secondary} />
+          <Text style={[styles.commentsTitle, { color: colors.foreground }]}>
+            Comments
+          </Text>
+        </View>
+        <Text style={[styles.commentCount, { color: colors.mutedForeground }]}>
+          {comments.length}
+        </Text>
+      </View>
+
+      {commentsQuery.isLoading ? (
+        <Text style={[styles.commentMeta, { color: colors.mutedForeground }]}>
+          Loading comments…
+        </Text>
+      ) : comments.length === 0 ? (
+        <Text style={[styles.commentMeta, { color: colors.mutedForeground }]}>
+          No comments yet.
+        </Text>
+      ) : (
+        <View style={styles.commentList}>
+          {comments.map((comment) => (
+            <View
+              key={comment.id}
+              style={[styles.commentBubble, { backgroundColor: colors.muted }]}
+            >
+              <Text style={[styles.commentAuthor, { color: colors.foreground }]}>
+                {comment.professionalName}
+              </Text>
+              <Text style={[styles.commentText, { color: colors.foreground }]}>
+                {comment.content}
+              </Text>
+              <Text style={[styles.commentMeta, { color: colors.mutedForeground }]}>
+                {new Date(comment.createdAt).toLocaleDateString()}
+              </Text>
+            </View>
+          ))}
+        </View>
+      )}
+
+      {role === "professional" && (
+        <View style={styles.commentComposer}>
+          <TextInput
+            style={[
+              styles.commentInput,
+              {
+                color: colors.foreground,
+                borderColor: colors.border,
+                backgroundColor: colors.inputBackground,
+              },
+            ]}
+            value={content}
+            onChangeText={setContent}
+            placeholder="Add a follow-up comment…"
+            placeholderTextColor={colors.mutedForeground}
+            multiline
+            maxLength={2000}
+          />
+          <TouchableOpacity
+            style={[
+              styles.commentSend,
+              {
+                backgroundColor: content.trim() ? colors.primary : colors.muted,
+              },
+            ]}
+            onPress={handleSubmit}
+            disabled={!content.trim() || createCommentMutation.isPending}
+            accessibilityLabel="Post comment"
+          >
+            <Feather
+              name="send"
+              size={15}
+              color={content.trim() ? colors.primaryForeground : colors.mutedForeground}
+            />
+          </TouchableOpacity>
+        </View>
+      )}
+    </View>
   );
 }
 
@@ -187,6 +316,73 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontStyle: "italic",
     marginTop: 4,
+  },
+  comments: {
+    borderTopWidth: 1,
+    marginTop: 12,
+    paddingTop: 10,
+  },
+  commentsHeading: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 8,
+  },
+  commentsTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  commentsTitle: {
+    fontSize: 13,
+    fontWeight: "700" as const,
+  },
+  commentCount: {
+    fontSize: 12,
+  },
+  commentList: {
+    gap: 6,
+  },
+  commentBubble: {
+    borderRadius: 8,
+    padding: 9,
+  },
+  commentAuthor: {
+    fontSize: 12,
+    fontWeight: "700" as const,
+    marginBottom: 2,
+  },
+  commentText: {
+    fontSize: 13,
+    lineHeight: 18,
+  },
+  commentMeta: {
+    fontSize: 11,
+    marginTop: 3,
+  },
+  commentComposer: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    gap: 8,
+    marginTop: 8,
+  },
+  commentInput: {
+    flex: 1,
+    minHeight: 42,
+    maxHeight: 88,
+    borderWidth: 1,
+    borderRadius: 9,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    fontSize: 13,
+    textAlignVertical: "top",
+  },
+  commentSend: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    alignItems: "center",
+    justifyContent: "center",
   },
   actions: {
     flexDirection: "row",

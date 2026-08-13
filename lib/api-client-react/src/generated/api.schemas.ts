@@ -118,6 +118,23 @@ export interface Timeslot {
   createdAt: string;
 }
 
+export interface AppointmentComment {
+  id: number;
+  timeslotId: number;
+  professionalId: number;
+  professionalName: string;
+  content: string;
+  createdAt: string;
+}
+
+export interface CreateAppointmentCommentRequest {
+  /**
+   * @minLength 1
+   * @maxLength 2000
+   */
+  content: string;
+}
+
 export interface CreateTimeslotRequest {
   startTime: string;
   endTime: string;

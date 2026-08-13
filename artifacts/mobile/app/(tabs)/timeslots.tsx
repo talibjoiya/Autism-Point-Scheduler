@@ -162,12 +162,14 @@ function CreateTimeslotModal({
       const startISO = parseDateTime(startDate, startTime);
       const endISO = parseDateTime(startDate, endTime);
       await createMutation.mutateAsync({
-        startTime: startISO,
-        endTime: endISO,
-        serviceId: selectedService.id,
-        professionalId: selectedProfessional.id,
-        clientId: selectedClient.id,
-        notes: notes || undefined,
+        data: {
+          startTime: startISO,
+          endTime: endISO,
+          serviceId: selectedService.id,
+          professionalId: selectedProfessional.id,
+          clientId: selectedClient.id,
+          notes: notes || undefined,
+        },
       });
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       onSuccess();

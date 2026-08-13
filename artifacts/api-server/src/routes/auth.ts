@@ -23,7 +23,7 @@ router.post("/login", async (req, res) => {
       return;
     }
 
-    (req.session as Record<string, unknown>).userId = user.id;
+    (req.session as unknown as Record<string, unknown>).userId = user.id;
     res.json({ user: sanitizeUser(user), message: "Login successful" });
   } catch (err) {
     req.log.error(err);
@@ -39,7 +39,7 @@ router.post("/logout", (req, res) => {
 
 router.get("/me", async (req, res) => {
   try {
-    const userId = (req.session as Record<string, unknown>).userId as number | undefined;
+    const userId = (req.session as unknown as Record<string, unknown>).userId as number | undefined;
     if (!userId) {
       res.status(401).json({ error: "Not authenticated" });
       return;

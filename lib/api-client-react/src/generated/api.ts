@@ -17,7 +17,9 @@ import type {
 } from "@tanstack/react-query";
 
 import type {
+  AppointmentComment,
   AuthResponse,
+  CreateAppointmentCommentRequest,
   CreateServiceRequest,
   CreateTimeslotRequest,
   CreateUserRequest,
@@ -1720,6 +1722,182 @@ export const useUpdateTimeslotStatus = <
   TContext
 > => {
   return useMutation(getUpdateTimeslotStatusMutationOptions(options));
+};
+
+/**
+ * @summary List comments for a completed appointment
+ */
+export const getListTimeslotCommentsUrl = (id: number) => {
+  return `/api/timeslots/${id}/comments`;
+};
+
+export const listTimeslotComments = async (
+  id: number,
+  options?: RequestInit,
+): Promise<AppointmentComment[]> => {
+  return customFetch<AppointmentComment[]>(getListTimeslotCommentsUrl(id), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListTimeslotCommentsQueryKey = (id: number) => {
+  return [`/api/timeslots/${id}/comments`] as const;
+};
+
+export const getListTimeslotCommentsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listTimeslotComments>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listTimeslotComments>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getListTimeslotCommentsQueryKey(id);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listTimeslotComments>>
+  > = ({ signal }) => listTimeslotComments(id, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof listTimeslotComments>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListTimeslotCommentsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listTimeslotComments>>
+>;
+export type ListTimeslotCommentsQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary List comments for a completed appointment
+ */
+
+export function useListTimeslotComments<
+  TData = Awaited<ReturnType<typeof listTimeslotComments>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listTimeslotComments>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListTimeslotCommentsQueryOptions(id, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Post a professional comment on a completed appointment
+ */
+export const getCreateTimeslotCommentUrl = (id: number) => {
+  return `/api/timeslots/${id}/comments`;
+};
+
+export const createTimeslotComment = async (
+  id: number,
+  createAppointmentCommentRequest: CreateAppointmentCommentRequest,
+  options?: RequestInit,
+): Promise<AppointmentComment> => {
+  return customFetch<AppointmentComment>(getCreateTimeslotCommentUrl(id), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createAppointmentCommentRequest),
+  });
+};
+
+export const getCreateTimeslotCommentMutationOptions = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createTimeslotComment>>,
+    TError,
+    { id: number; data: BodyType<CreateAppointmentCommentRequest> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createTimeslotComment>>,
+  TError,
+  { id: number; data: BodyType<CreateAppointmentCommentRequest> },
+  TContext
+> => {
+  const mutationKey = ["createTimeslotComment"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createTimeslotComment>>,
+    { id: number; data: BodyType<CreateAppointmentCommentRequest> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return createTimeslotComment(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateTimeslotCommentMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createTimeslotComment>>
+>;
+export type CreateTimeslotCommentMutationBody =
+  BodyType<CreateAppointmentCommentRequest>;
+export type CreateTimeslotCommentMutationError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Post a professional comment on a completed appointment
+ */
+export const useCreateTimeslotComment = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createTimeslotComment>>,
+    TError,
+    { id: number; data: BodyType<CreateAppointmentCommentRequest> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createTimeslotComment>>,
+  TError,
+  { id: number; data: BodyType<CreateAppointmentCommentRequest> },
+  TContext
+> => {
+  return useMutation(getCreateTimeslotCommentMutationOptions(options));
 };
 
 /**

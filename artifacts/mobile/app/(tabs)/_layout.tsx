@@ -25,7 +25,7 @@ function NativeTabLayout() {
         </NativeTabs.Trigger>
       )}
       <NativeTabs.Trigger name="timeslots">
-        <Icon sf={{ default: "calendar", selected: "calendar.fill" }} />
+        <Icon sf={{ default: "calendar", selected: "calendar" }} />
         <Label>Appointments</Label>
       </NativeTabs.Trigger>
       {isAdmin && (

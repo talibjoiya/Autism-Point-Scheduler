@@ -6,7 +6,9 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from "./appointmentComment";
 export * from "./authResponse";
+export * from "./createAppointmentCommentRequest";
 export * from "./createServiceRequest";
 export * from "./createTimeslotRequest";
 export * from "./createUserRequest";

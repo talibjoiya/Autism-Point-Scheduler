@@ -17,6 +17,8 @@ tags:
     description: Service management
   - name: timeslots
     description: Time slot scheduling
+  - name: appointment-comments
+    description: Comments recorded by professionals after completed appointments
 paths:
   /healthz:
     get:
@@ -406,6 +408,92 @@ paths:
               schema:
                 $ref: "#/components/schemas/Timeslot"
 
+  /timeslots/{id}/comments:
+    get:
+      operationId: listTimeslotComments
+      tags: [appointment-comments]
+      summary: List comments for a completed appointment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Appointment comments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AppointmentComment"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Not allowed to view these comments
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Appointment not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    post:
+      operationId: createTimeslotComment
+      tags: [appointment-comments]
+      summary: Post a professional comment on a completed appointment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAppointmentCommentRequest"
+      responses:
+        "201":
+          description: Comment created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppointmentComment"
+        "400":
+          description: Invalid comment or appointment is not done
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Only the assigned professional can post
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Appointment not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /stats/overview:
     get:
       operationId: getStatsOverview
@@ -610,6 +698,40 @@ components:
         - clientId
         - clientName
         - createdAt
+
+    AppointmentComment:
+      type: object
+      properties:
+        id:
+          type: integer
+        timeslotId:
+          type: integer
+        professionalId:
+          type: integer
+        professionalName:
+          type: string
+        content:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - timeslotId
+        - professionalId
+        - professionalName
+        - content
+        - createdAt
+
+    CreateAppointmentCommentRequest:
+      type: object
+      properties:
+        content:
+          type: string
+          minLength: 1
+          maxLength: 2000
+      required:
+        - content
 
     CreateTimeslotRequest:
       type: object
