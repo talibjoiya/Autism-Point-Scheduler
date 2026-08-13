@@ -58,11 +58,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const logout = useCallback(async () => {
+    // Clear the local session and leave the protected area immediately.
+    // Native fetch does not always persist cookie sessions consistently, and
+    // waiting for the network request can make the button appear unresponsive.
+    setUser(null);
+    router.replace("/(auth)/login");
+
     try {
       await apiLogout();
     } catch {}
-    setUser(null);
-  }, []);
+  }, [router]);
 
   return (
     <AuthContext.Provider value={{ user, isLoading, login, logout }}>
