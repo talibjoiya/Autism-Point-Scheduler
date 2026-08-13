@@ -1,6 +1,5 @@
 import React from "react";
 import {
-  Alert,
   Platform,
   ScrollView,
   StyleSheet,
@@ -60,18 +59,9 @@ export default function ProfileScreen() {
 
   const badge = roleBadge[user.role] ?? { bg: "#f0f4f8", text: "#697586" };
 
-  const handleLogout = () => {
-    Alert.alert("Sign Out", "Are you sure you want to sign out?", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Sign Out",
-        style: "destructive",
-        onPress: async () => {
-          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-          await logout();
-        },
-      },
-    ]);
+  const handleLogout = async () => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+    await logout();
   };
 
   const joinDate = new Date(user.createdAt).toLocaleDateString("en-PK", {
@@ -139,6 +129,7 @@ export default function ProfileScreen() {
         style={[styles.logoutBtn, { backgroundColor: "#fee2e2" }]}
         onPress={handleLogout}
         activeOpacity={0.8}
+        testID="sign-out-button"
       >
         <Feather name="log-out" size={18} color="#dc2626" />
         <Text style={styles.logoutText}>Sign Out</Text>

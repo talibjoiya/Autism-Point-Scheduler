@@ -6,6 +6,7 @@ import React, {
   useState,
 } from "react";
 import { useRouter, useSegments } from "expo-router";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   getMe,
   login as apiLogin,
@@ -27,6 +28,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const segments = useSegments();
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const loadUser = async () => {
@@ -62,12 +64,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Native fetch does not always persist cookie sessions consistently, and
     // waiting for the network request can make the button appear unresponsive.
     setUser(null);
+    queryClient.clear();
     router.replace("/(auth)/login");
 
     try {
       await apiLogout();
     } catch {}
-  }, [router]);
+  }, [queryClient, router]);
 
   return (
     <AuthContext.Provider value={{ user, isLoading, login, logout }}>
