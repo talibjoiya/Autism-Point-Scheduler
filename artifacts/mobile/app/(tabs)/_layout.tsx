@@ -18,7 +18,7 @@ function NativeTabLayout() {
 
   return (
     <NativeTabs>
-      {isAdmin && (
+      {(isAdmin || isClient) && (
         <NativeTabs.Trigger name="index">
           <Icon sf={{ default: "chart.bar", selected: "chart.bar.fill" }} />
           <Label>Dashboard</Label>
@@ -56,6 +56,7 @@ function ClassicTabLayout() {
   const isWeb = Platform.OS === "web";
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
+  const isClient = user?.role === "client";
 
   return (
     <Tabs
@@ -104,7 +105,7 @@ function ClassicTabLayout() {
         name="index"
         options={{
           title: "Dashboard",
-          href: isAdmin ? undefined : null,
+          href: isAdmin || isClient ? undefined : null,
           tabBarIcon: ({ color }) =>
             isIOS ? (
               <SymbolView name="chart.bar.fill" tintColor={color} size={22} />

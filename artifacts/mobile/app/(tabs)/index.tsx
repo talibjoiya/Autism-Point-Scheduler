@@ -15,12 +15,13 @@ import {
   useGetStatsOverview,
   useListTimeslots,
 } from "@workspace/api-client-react";
-import type { Timeslot } from "@workspace/api-client-react";
+import type { Timeslot, User } from "@workspace/api-client-react";
 import { useAuth } from "@/context/AuthContext";
 import { useColors } from "@/hooks/useColors";
 import { TimeslotCard } from "@/components/TimeslotCard";
 import { LoadingState } from "@/components/LoadingState";
 import { EmptyState } from "@/components/EmptyState";
+import { ClientProgressAccountSection } from "@/components/ClientProgressAccountSection";
 
 interface StatCardProps {
   label: string;
@@ -54,11 +55,46 @@ function StatCard({ label, value, icon, color, bg }: StatCardProps) {
 
 export default function DashboardScreen() {
   const { user } = useAuth();
-  const colors = useColors();
-  const insets = useSafeAreaInsets();
 
   if (!user) return null;
+  if (user.role === "client") return <ClientDashboard client={user} />;
   if (user.role !== "admin") return <Redirect href="/(tabs)/timeslots" />;
+
+  return <AdminDashboard user={user} />;
+}
+
+function ClientDashboard({ client }: { client: User }) {
+  const colors = useColors();
+  const insets = useSafeAreaInsets();
+  const webTopPadding = Platform.OS === "web" ? 67 : 0;
+  const webBottomPadding = Platform.OS === "web" ? 34 : 0;
+
+  return (
+    <ScrollView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      contentContainerStyle={[
+        styles.content,
+        {
+          paddingTop: webTopPadding + 16,
+          paddingBottom: insets.bottom + webBottomPadding + 24,
+        },
+      ]}
+      showsVerticalScrollIndicator={false}
+    >
+      <Text style={[styles.dashboardGreeting, { color: colors.foreground }]}>
+        Welcome back, {client.name.split(" ")[0]}
+      </Text>
+      <Text style={[styles.dashboardSubtitle, { color: colors.mutedForeground }]}>
+        Here is your progress overview.
+      </Text>
+      <ClientProgressAccountSection client={client} />
+    </ScrollView>
+  );
+}
+
+function AdminDashboard({ user }: { user: User }) {
+  const colors = useColors();
+  const insets = useSafeAreaInsets();
 
   const {
     data: stats,
@@ -228,6 +264,15 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: 16,
+  },
+  dashboardGreeting: {
+    fontSize: 24,
+    fontWeight: "700" as const,
+    marginBottom: 4,
+  },
+  dashboardSubtitle: {
+    fontSize: 14,
+    marginBottom: 8,
   },
   sectionTitle: {
     fontSize: 18,

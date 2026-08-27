@@ -13,7 +13,6 @@ import * as Haptics from "expo-haptics";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "@/context/AuthContext";
 import { useColors } from "@/hooks/useColors";
-import { ClientProgressAccountSection } from "@/components/ClientProgressAccountSection";
 
 const roleBadge: Record<string, { bg: string; text: string }> = {
   admin: { bg: "#ede9fe", text: "#6d28d9" },
@@ -125,8 +124,6 @@ export default function ProfileScreen() {
         <InfoRow icon="calendar" label="Member since" value={joinDate} />
         <InfoRow icon="hash" label="User ID" value={`#${user.id}`} />
       </View>
-
-      {user.role === "client" ? <ClientProgressAccountSection client={user} /> : null}
 
       <TouchableOpacity
         style={[styles.logoutBtn, { backgroundColor: "#fee2e2" }]}
