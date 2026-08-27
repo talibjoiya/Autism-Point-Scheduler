@@ -8,7 +8,11 @@
 
 export * from "./appointmentComment";
 export * from "./authResponse";
+export * from "./bulkClientProgressResponse";
+export * from "./clientProgress";
+export * from "./clientProgressSummary";
 export * from "./createAppointmentCommentRequest";
+export * from "./createClientProgressRequest";
 export * from "./createServiceRequest";
 export * from "./createTimeslotRequest";
 export * from "./createUserRequest";
@@ -25,6 +29,7 @@ export * from "./statsOverview";
 export * from "./successResponse";
 export * from "./timeslot";
 export * from "./timeslotStatus";
+export * from "./updateClientProgressRequest";
 export * from "./updateStatusRequest";
 export * from "./updateStatusRequestStatus";
 export * from "./updateTimeslotRequest";

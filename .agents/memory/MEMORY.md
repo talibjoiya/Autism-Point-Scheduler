@@ -1,0 +1,1 @@
+- [Generated workspace declarations](generated-workspace-declarations.md) — rebuild shared TypeScript declarations after OpenAPI codegen when consumers still resolve stale package output.

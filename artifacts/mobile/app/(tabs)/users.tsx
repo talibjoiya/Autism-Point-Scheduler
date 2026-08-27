@@ -25,6 +25,7 @@ import type { User, CreateUserRequest, UpdateUserRequest } from "@workspace/api-
 import { useAuth } from "@/context/AuthContext";
 import { useColors } from "@/hooks/useColors";
 import { UserCard } from "@/components/UserCard";
+import { ClientProgressModal } from "@/components/ClientProgressModal";
 import { EmptyState } from "@/components/EmptyState";
 import { LoadingState } from "@/components/LoadingState";
 
@@ -259,6 +260,7 @@ export default function UsersScreen() {
   const [roleFilter, setRoleFilter] = useState<RoleFilter>("all");
   const [modalVisible, setModalVisible] = useState(false);
   const [editUser, setEditUser] = useState<User | null>(null);
+  const [progressClient, setProgressClient] = useState<User | null>(null);
 
   if (currentUser?.role !== "admin") return null;
 
@@ -371,6 +373,7 @@ export default function UsersScreen() {
                 setModalVisible(true);
               }}
               onDelete={() => handleDelete(item)}
+              onProgress={() => setProgressClient(item)}
             />
           )}
           scrollEnabled={!!(users && users.length > 0)}
@@ -395,6 +398,11 @@ export default function UsersScreen() {
           setEditUser(null);
         }}
         onSuccess={() => refetch()}
+      />
+      <ClientProgressModal
+        client={progressClient}
+        visible={progressClient !== null}
+        onClose={() => setProgressClient(null)}
       />
     </View>
   );

@@ -134,6 +134,127 @@ export const DeleteUserResponse = zod.object({
 });
 
 /**
+ * @summary Get progress items for a client
+ */
+export const GetClientProgressParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const getClientProgressResponseOverallProgressMin = 0;
+export const getClientProgressResponseOverallProgressMax = 100;
+
+export const getClientProgressResponseItemsItemProgressMin = 0;
+export const getClientProgressResponseItemsItemProgressMax = 100;
+
+export const GetClientProgressResponse = zod.object({
+  clientId: zod.number(),
+  overallProgress: zod
+    .number()
+    .min(getClientProgressResponseOverallProgressMin)
+    .max(getClientProgressResponseOverallProgressMax),
+  items: zod.array(
+    zod.object({
+      id: zod.number(),
+      clientId: zod.number(),
+      itemName: zod.string(),
+      progress: zod
+        .number()
+        .min(getClientProgressResponseItemsItemProgressMin)
+        .max(getClientProgressResponseItemsItemProgressMax),
+      notes: zod.string().nullish(),
+      createdAt: zod.coerce.date(),
+      updatedAt: zod.coerce.date(),
+    }),
+  ),
+});
+
+/**
+ * @summary Add a progress item for a client
+ */
+export const CreateClientProgressParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const createClientProgressBodyProgressMin = 0;
+export const createClientProgressBodyProgressMax = 100;
+
+export const CreateClientProgressBody = zod.object({
+  itemName: zod.string(),
+  progress: zod
+    .number()
+    .min(createClientProgressBodyProgressMin)
+    .max(createClientProgressBodyProgressMax)
+    .optional(),
+  notes: zod.string().optional(),
+});
+
+/**
+ * @summary Add a progress item for all clients
+ */
+export const createClientProgressForAllBodyProgressMin = 0;
+export const createClientProgressForAllBodyProgressMax = 100;
+
+export const CreateClientProgressForAllBody = zod.object({
+  itemName: zod.string(),
+  progress: zod
+    .number()
+    .min(createClientProgressForAllBodyProgressMin)
+    .max(createClientProgressForAllBodyProgressMax)
+    .optional(),
+  notes: zod.string().optional(),
+});
+
+/**
+ * @summary Update a client progress item
+ */
+export const UpdateClientProgressParams = zod.object({
+  id: zod.coerce.number(),
+  progressId: zod.coerce.number(),
+});
+
+export const updateClientProgressBodyProgressMin = 0;
+export const updateClientProgressBodyProgressMax = 100;
+
+export const UpdateClientProgressBody = zod.object({
+  itemName: zod.string().optional(),
+  progress: zod
+    .number()
+    .min(updateClientProgressBodyProgressMin)
+    .max(updateClientProgressBodyProgressMax)
+    .optional(),
+  notes: zod.string().nullish(),
+});
+
+export const updateClientProgressResponseProgressMin = 0;
+export const updateClientProgressResponseProgressMax = 100;
+
+export const UpdateClientProgressResponse = zod.object({
+  id: zod.number(),
+  clientId: zod.number(),
+  itemName: zod.string(),
+  progress: zod
+    .number()
+    .min(updateClientProgressResponseProgressMin)
+    .max(updateClientProgressResponseProgressMax),
+  notes: zod.string().nullish(),
+  createdAt: zod.coerce.date(),
+  updatedAt: zod.coerce.date(),
+});
+
+/**
+ * @summary Delete a client progress item
+ */
+export const DeleteClientProgressParams = zod.object({
+  id: zod.coerce.number(),
+  progressId: zod.coerce.number(),
+});
+
+export const DeleteClientProgressResponse = zod.object({
+  success: zod.boolean(),
+  message: zod.string().optional(),
+});
+
+/**
  * @summary List all services
  */
 export const ListServicesResponseItem = zod.object({

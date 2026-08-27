@@ -78,6 +78,56 @@ export interface UpdateUserRequest {
   role?: UpdateUserRequestRole;
 }
 
+export interface ClientProgress {
+  id: number;
+  clientId: number;
+  itemName: string;
+  /**
+   * @minimum 0
+   * @maximum 100
+   */
+  progress: number;
+  notes?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ClientProgressSummary {
+  clientId: number;
+  /**
+   * @minimum 0
+   * @maximum 100
+   */
+  overallProgress: number;
+  items: ClientProgress[];
+}
+
+export interface BulkClientProgressResponse {
+  created: number;
+  skipped: number;
+  total: number;
+}
+
+export interface CreateClientProgressRequest {
+  itemName: string;
+  /**
+   * @minimum 0
+   * @maximum 100
+   */
+  progress?: number;
+  notes?: string;
+}
+
+export interface UpdateClientProgressRequest {
+  itemName?: string;
+  /**
+   * @minimum 0
+   * @maximum 100
+   */
+  progress?: number;
+  notes?: string | null;
+}
+
 export interface Service {
   id: number;
   name: string;

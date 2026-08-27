@@ -1,6 +1,7 @@
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Feather } from "@expo/vector-icons";
+import { useGetClientProgress } from "@workspace/api-client-react";
 import type { User } from "@workspace/api-client-react";
 import { useColors } from "@/hooks/useColors";
 
@@ -14,9 +15,45 @@ interface Props {
   user: User;
   onEdit?: () => void;
   onDelete?: () => void;
+  onProgress?: () => void;
 }
 
-export function UserCard({ user, onEdit, onDelete }: Props) {
+function ClientProgressSummary({ user, onPress }: { user: User; onPress?: () => void }) {
+  const colors = useColors();
+  const { data, isLoading } = useGetClientProgress(user.id);
+  const score = data?.overallProgress ?? 0;
+  const scoreColor = score >= 75 ? colors.success : score >= 45 ? colors.warning : colors.secondary;
+
+  return (
+    <View style={[styles.progressSection, { borderTopColor: colors.border }]}>
+      <View style={styles.progressHeader}>
+        <View style={styles.progressLabel}>
+          <Feather name="activity" size={13} color={colors.secondary} />
+          <Text style={[styles.progressTitle, { color: colors.foreground }]}>Overall progress</Text>
+        </View>
+        <Text style={[styles.progressScore, { color: scoreColor }]}>
+          {isLoading ? "…" : `${score}%`}
+        </Text>
+      </View>
+      <View style={styles.progressTrack}>
+        <View style={[styles.progressFill, { width: `${isLoading ? 0 : score}%`, backgroundColor: scoreColor }]} />
+      </View>
+      <View style={styles.progressFooter}>
+        <Text style={[styles.progressMeta, { color: colors.mutedForeground }]}>
+          {data?.items.length ?? 0} tracked {data?.items.length === 1 ? "area" : "areas"}
+        </Text>
+        {onPress ? (
+          <TouchableOpacity onPress={onPress} style={styles.progressButton} accessibilityLabel={`View ${user.name}'s progress`}>
+            <Text style={[styles.progressButtonText, { color: colors.primary }]}>View details</Text>
+            <Feather name="chevron-right" size={14} color={colors.primary} />
+          </TouchableOpacity>
+        ) : null}
+      </View>
+    </View>
+  );
+}
+
+export function UserCard({ user, onEdit, onDelete, onProgress }: Props) {
   const colors = useColors();
   const badge = roleBadge[user.role] ?? { bg: "#f0f4f8", text: "#697586" };
 
@@ -58,6 +95,7 @@ export function UserCard({ user, onEdit, onDelete }: Props) {
               </Text>
             </View>
           ) : null}
+          {user.role === "client" ? <ClientProgressSummary user={user} onPress={onProgress} /> : null}
         </View>
         <View style={styles.actions}>
           {onEdit && (
@@ -138,6 +176,58 @@ const styles = StyleSheet.create({
   },
   actions: {
     gap: 6,
+  },
+  progressSection: {
+    borderTopWidth: 1,
+    marginTop: 8,
+    paddingTop: 8,
+    gap: 6,
+  },
+  progressHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  progressLabel: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+  },
+  progressTitle: {
+    fontSize: 12,
+    fontWeight: "600" as const,
+  },
+  progressScore: {
+    fontSize: 13,
+    fontWeight: "700" as const,
+  },
+  progressTrack: {
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: "#e5edf2",
+    overflow: "hidden",
+  },
+  progressFill: {
+    height: "100%",
+    borderRadius: 3,
+  },
+  progressFooter: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  progressMeta: {
+    fontSize: 11,
+  },
+  progressButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 2,
+    paddingVertical: 2,
+  },
+  progressButtonText: {
+    fontSize: 12,
+    fontWeight: "600" as const,
   },
   iconBtn: {
     width: 32,

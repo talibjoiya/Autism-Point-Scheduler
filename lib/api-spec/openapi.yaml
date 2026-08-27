@@ -187,6 +187,221 @@ paths:
               schema:
                 $ref: "#/components/schemas/SuccessResponse"
 
+  /users/{id}/progress:
+    get:
+      operationId: getClientProgress
+      tags: [users]
+      summary: Get progress items for a client
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Client progress summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClientProgressSummary"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Not allowed to view this client's progress
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Client not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    post:
+      operationId: createClientProgress
+      tags: [users]
+      summary: Add a progress item for a client
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateClientProgressRequest"
+      responses:
+        "201":
+          description: Progress item created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClientProgress"
+        "400":
+          description: Invalid progress item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Only admins and professionals can manage progress
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Client not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /users/progress/bulk:
+    post:
+      operationId: createClientProgressForAll
+      tags: [users]
+      summary: Add a progress item for all clients
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateClientProgressRequest"
+      responses:
+        "201":
+          description: Bulk progress item result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BulkClientProgressResponse"
+        "400":
+          description: Invalid progress item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Only admins and professionals can manage progress
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /users/{id}/progress/{progressId}:
+    put:
+      operationId: updateClientProgress
+      tags: [users]
+      summary: Update a client progress item
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: progressId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateClientProgressRequest"
+      responses:
+        "200":
+          description: Progress item updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClientProgress"
+        "400":
+          description: Invalid progress item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Only admins and professionals can manage progress
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Progress item not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deleteClientProgress
+      tags: [users]
+      summary: Delete a client progress item
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: progressId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Progress item deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Only admins and professionals can manage progress
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Progress item not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /services:
     get:
       operationId: listServices
@@ -614,6 +829,95 @@ components:
         role:
           type: string
           enum: [admin, professional, client]
+
+    ClientProgress:
+      type: object
+      properties:
+        id:
+          type: integer
+        clientId:
+          type: integer
+        itemName:
+          type: string
+        progress:
+          type: integer
+          minimum: 0
+          maximum: 100
+        notes:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - clientId
+        - itemName
+        - progress
+        - createdAt
+        - updatedAt
+
+    ClientProgressSummary:
+      type: object
+      properties:
+        clientId:
+          type: integer
+        overallProgress:
+          type: integer
+          minimum: 0
+          maximum: 100
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ClientProgress"
+      required:
+        - clientId
+        - overallProgress
+        - items
+
+    BulkClientProgressResponse:
+      type: object
+      properties:
+        created:
+          type: integer
+        skipped:
+          type: integer
+        total:
+          type: integer
+      required:
+        - created
+        - skipped
+        - total
+
+    CreateClientProgressRequest:
+      type: object
+      properties:
+        itemName:
+          type: string
+        progress:
+          type: integer
+          minimum: 0
+          maximum: 100
+        notes:
+          type: string
+      required:
+        - itemName
+
+    UpdateClientProgressRequest:
+      type: object
+      properties:
+        itemName:
+          type: string
+        progress:
+          type: integer
+          minimum: 0
+          maximum: 100
+        notes:
+          type: string
+          nullable: true
 
     Service:
       type: object

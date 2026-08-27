@@ -19,7 +19,11 @@ import type {
 import type {
   AppointmentComment,
   AuthResponse,
+  BulkClientProgressResponse,
+  ClientProgress,
+  ClientProgressSummary,
   CreateAppointmentCommentRequest,
+  CreateClientProgressRequest,
   CreateServiceRequest,
   CreateTimeslotRequest,
   CreateUserRequest,
@@ -32,6 +36,7 @@ import type {
   StatsOverview,
   SuccessResponse,
   Timeslot,
+  UpdateClientProgressRequest,
   UpdateStatusRequest,
   UpdateTimeslotRequest,
   UpdateUserRequest,
@@ -778,6 +783,471 @@ export const useDeleteUser = <
   TContext
 > => {
   return useMutation(getDeleteUserMutationOptions(options));
+};
+
+/**
+ * @summary Get progress items for a client
+ */
+export const getGetClientProgressUrl = (id: number) => {
+  return `/api/users/${id}/progress`;
+};
+
+export const getClientProgress = async (
+  id: number,
+  options?: RequestInit,
+): Promise<ClientProgressSummary> => {
+  return customFetch<ClientProgressSummary>(getGetClientProgressUrl(id), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetClientProgressQueryKey = (id: number) => {
+  return [`/api/users/${id}/progress`] as const;
+};
+
+export const getGetClientProgressQueryOptions = <
+  TData = Awaited<ReturnType<typeof getClientProgress>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getClientProgress>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetClientProgressQueryKey(id);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getClientProgress>>
+  > = ({ signal }) => getClientProgress(id, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getClientProgress>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetClientProgressQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getClientProgress>>
+>;
+export type GetClientProgressQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Get progress items for a client
+ */
+
+export function useGetClientProgress<
+  TData = Awaited<ReturnType<typeof getClientProgress>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getClientProgress>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetClientProgressQueryOptions(id, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Add a progress item for a client
+ */
+export const getCreateClientProgressUrl = (id: number) => {
+  return `/api/users/${id}/progress`;
+};
+
+export const createClientProgress = async (
+  id: number,
+  createClientProgressRequest: CreateClientProgressRequest,
+  options?: RequestInit,
+): Promise<ClientProgress> => {
+  return customFetch<ClientProgress>(getCreateClientProgressUrl(id), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createClientProgressRequest),
+  });
+};
+
+export const getCreateClientProgressMutationOptions = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createClientProgress>>,
+    TError,
+    { id: number; data: BodyType<CreateClientProgressRequest> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createClientProgress>>,
+  TError,
+  { id: number; data: BodyType<CreateClientProgressRequest> },
+  TContext
+> => {
+  const mutationKey = ["createClientProgress"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createClientProgress>>,
+    { id: number; data: BodyType<CreateClientProgressRequest> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return createClientProgress(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateClientProgressMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createClientProgress>>
+>;
+export type CreateClientProgressMutationBody =
+  BodyType<CreateClientProgressRequest>;
+export type CreateClientProgressMutationError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Add a progress item for a client
+ */
+export const useCreateClientProgress = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createClientProgress>>,
+    TError,
+    { id: number; data: BodyType<CreateClientProgressRequest> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createClientProgress>>,
+  TError,
+  { id: number; data: BodyType<CreateClientProgressRequest> },
+  TContext
+> => {
+  return useMutation(getCreateClientProgressMutationOptions(options));
+};
+
+/**
+ * @summary Add a progress item for all clients
+ */
+export const getCreateClientProgressForAllUrl = () => {
+  return `/api/users/progress/bulk`;
+};
+
+export const createClientProgressForAll = async (
+  createClientProgressRequest: CreateClientProgressRequest,
+  options?: RequestInit,
+): Promise<BulkClientProgressResponse> => {
+  return customFetch<BulkClientProgressResponse>(
+    getCreateClientProgressForAllUrl(),
+    {
+      ...options,
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...options?.headers },
+      body: JSON.stringify(createClientProgressRequest),
+    },
+  );
+};
+
+export const getCreateClientProgressForAllMutationOptions = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createClientProgressForAll>>,
+    TError,
+    { data: BodyType<CreateClientProgressRequest> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createClientProgressForAll>>,
+  TError,
+  { data: BodyType<CreateClientProgressRequest> },
+  TContext
+> => {
+  const mutationKey = ["createClientProgressForAll"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createClientProgressForAll>>,
+    { data: BodyType<CreateClientProgressRequest> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return createClientProgressForAll(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateClientProgressForAllMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createClientProgressForAll>>
+>;
+export type CreateClientProgressForAllMutationBody =
+  BodyType<CreateClientProgressRequest>;
+export type CreateClientProgressForAllMutationError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Add a progress item for all clients
+ */
+export const useCreateClientProgressForAll = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createClientProgressForAll>>,
+    TError,
+    { data: BodyType<CreateClientProgressRequest> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createClientProgressForAll>>,
+  TError,
+  { data: BodyType<CreateClientProgressRequest> },
+  TContext
+> => {
+  return useMutation(getCreateClientProgressForAllMutationOptions(options));
+};
+
+/**
+ * @summary Update a client progress item
+ */
+export const getUpdateClientProgressUrl = (id: number, progressId: number) => {
+  return `/api/users/${id}/progress/${progressId}`;
+};
+
+export const updateClientProgress = async (
+  id: number,
+  progressId: number,
+  updateClientProgressRequest: UpdateClientProgressRequest,
+  options?: RequestInit,
+): Promise<ClientProgress> => {
+  return customFetch<ClientProgress>(
+    getUpdateClientProgressUrl(id, progressId),
+    {
+      ...options,
+      method: "PUT",
+      headers: { "Content-Type": "application/json", ...options?.headers },
+      body: JSON.stringify(updateClientProgressRequest),
+    },
+  );
+};
+
+export const getUpdateClientProgressMutationOptions = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateClientProgress>>,
+    TError,
+    {
+      id: number;
+      progressId: number;
+      data: BodyType<UpdateClientProgressRequest>;
+    },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateClientProgress>>,
+  TError,
+  {
+    id: number;
+    progressId: number;
+    data: BodyType<UpdateClientProgressRequest>;
+  },
+  TContext
+> => {
+  const mutationKey = ["updateClientProgress"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateClientProgress>>,
+    {
+      id: number;
+      progressId: number;
+      data: BodyType<UpdateClientProgressRequest>;
+    }
+  > = (props) => {
+    const { id, progressId, data } = props ?? {};
+
+    return updateClientProgress(id, progressId, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdateClientProgressMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateClientProgress>>
+>;
+export type UpdateClientProgressMutationBody =
+  BodyType<UpdateClientProgressRequest>;
+export type UpdateClientProgressMutationError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Update a client progress item
+ */
+export const useUpdateClientProgress = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateClientProgress>>,
+    TError,
+    {
+      id: number;
+      progressId: number;
+      data: BodyType<UpdateClientProgressRequest>;
+    },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof updateClientProgress>>,
+  TError,
+  {
+    id: number;
+    progressId: number;
+    data: BodyType<UpdateClientProgressRequest>;
+  },
+  TContext
+> => {
+  return useMutation(getUpdateClientProgressMutationOptions(options));
+};
+
+/**
+ * @summary Delete a client progress item
+ */
+export const getDeleteClientProgressUrl = (id: number, progressId: number) => {
+  return `/api/users/${id}/progress/${progressId}`;
+};
+
+export const deleteClientProgress = async (
+  id: number,
+  progressId: number,
+  options?: RequestInit,
+): Promise<SuccessResponse> => {
+  return customFetch<SuccessResponse>(
+    getDeleteClientProgressUrl(id, progressId),
+    {
+      ...options,
+      method: "DELETE",
+    },
+  );
+};
+
+export const getDeleteClientProgressMutationOptions = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteClientProgress>>,
+    TError,
+    { id: number; progressId: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteClientProgress>>,
+  TError,
+  { id: number; progressId: number },
+  TContext
+> => {
+  const mutationKey = ["deleteClientProgress"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteClientProgress>>,
+    { id: number; progressId: number }
+  > = (props) => {
+    const { id, progressId } = props ?? {};
+
+    return deleteClientProgress(id, progressId, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteClientProgressMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteClientProgress>>
+>;
+
+export type DeleteClientProgressMutationError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Delete a client progress item
+ */
+export const useDeleteClientProgress = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteClientProgress>>,
+    TError,
+    { id: number; progressId: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof deleteClientProgress>>,
+  TError,
+  { id: number; progressId: number },
+  TContext
+> => {
+  return useMutation(getDeleteClientProgressMutationOptions(options));
 };
 
 /**
