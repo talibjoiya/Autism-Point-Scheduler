@@ -1,4 +1,4 @@
-import { Fragment, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { 
   useListUsers, 
   useCreateUser, 
@@ -8,6 +8,7 @@ import {
   getListUsersQueryKey,
   getGetUserQueryKey
 } from "@workspace/api-client-react";
+import type { User } from "@workspace/api-client-react";
 import { Layout } from "@/components/layout";
 import { RequireAuth } from "@/lib/auth-context";
 import { useQueryClient } from "@tanstack/react-query";
@@ -15,7 +16,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { format } from "date-fns";
-import { Plus, Trash2, Mail, Phone, Calendar, Edit } from "lucide-react";
+import { Plus, Trash2, Mail, Phone, Calendar, Edit, Activity } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -45,8 +46,6 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import {
   ClientProgressPanel,
-  ClientProgressSummaryCell,
-  ClientProgressToggle,
 } from "@/components/ClientProgressPanel";
 
 const clientSchema = z.object({
@@ -155,7 +154,7 @@ function ClientsContent() {
   const queryClient = useQueryClient();
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [expandedProgressId, setExpandedProgressId] = useState<number | null>(null);
+  const [progressClient, setProgressClient] = useState<User | null>(null);
 
   const { data: clients = [], isLoading } = useListUsers({ role: "client" });
   const createMutation = useCreateUser();
@@ -241,64 +240,59 @@ function ClientsContent() {
               <Head>Name</Head>
               <Head>Contact Info</Head>
               <Head>Joined</Head>
-              <Head>Overall progress</Head>
               <Head className="text-right">Actions</Head>
             </Row>
           </Header>
           <Body>
             {isLoading ? (
-              <Row><Cell colSpan={5} className="text-center py-8">Loading...</Cell></Row>
+              <Row><Cell colSpan={4} className="text-center py-8">Loading...</Cell></Row>
             ) : clients.length === 0 ? (
-              <Row><Cell colSpan={5} className="text-center py-12 text-muted-foreground">No clients found.</Cell></Row>
+              <Row><Cell colSpan={4} className="text-center py-12 text-muted-foreground">No clients found.</Cell></Row>
             ) : (
               clients.map(client => (
-                <Fragment key={client.id}>
-                  <Row>
-                    <Cell className="font-medium">{client.name}</Cell>
-                    <Cell>
-                      <div className="space-y-1 text-sm">
-                        <div className="flex items-center gap-2"><Mail className="w-3 h-3 text-muted-foreground" /> {client.email}</div>
-                        {client.phone && <div className="flex items-center gap-2"><Phone className="w-3 h-3 text-muted-foreground" /> {client.phone}</div>}
-                      </div>
-                    </Cell>
-                    <Cell>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Calendar className="w-3 h-3" />
-                        {format(new Date(client.createdAt), "MMM d, yyyy")}
-                      </div>
-                    </Cell>
-                    <Cell>
-                      <ClientProgressSummaryCell client={client} />
-                    </Cell>
-                    <Cell className="text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <ClientProgressToggle
-                          client={client}
-                          open={expandedProgressId === client.id}
-                          onToggle={() => setExpandedProgressId((current) => current === client.id ? null : client.id)}
-                        />
-                        <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground" onClick={() => setEditingId(client.id)}>
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => handleDelete(client.id)}>
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </Cell>
-                  </Row>
-                  {expandedProgressId === client.id && (
-                    <Row>
-                      <Cell colSpan={5} className="p-0">
-                        <ClientProgressPanel client={client} />
-                      </Cell>
-                    </Row>
-                  )}
-                </Fragment>
+                <Row key={client.id}>
+                  <Cell className="font-medium">{client.name}</Cell>
+                  <Cell>
+                    <div className="space-y-1 text-sm">
+                      <div className="flex items-center gap-2"><Mail className="w-3 h-3 text-muted-foreground" /> {client.email}</div>
+                      {client.phone && <div className="flex items-center gap-2"><Phone className="w-3 h-3 text-muted-foreground" /> {client.phone}</div>}
+                    </div>
+                  </Cell>
+                  <Cell>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Calendar className="w-3 h-3" />
+                      {format(new Date(client.createdAt), "MMM d, yyyy")}
+                    </div>
+                  </Cell>
+                  <Cell className="text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      <Button variant="outline" size="sm" className="gap-2" onClick={() => setProgressClient(client)}>
+                        <Activity className="w-4 h-4" />
+                        Client account
+                      </Button>
+                      <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground" onClick={() => setEditingId(client.id)}>
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => handleDelete(client.id)}>
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </Cell>
+                </Row>
               ))
             )}
           </Body>
         </Table>
       </div>
+
+      <Dialog open={progressClient !== null} onOpenChange={(open) => !open && setProgressClient(null)}>
+        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto p-0">
+          <DialogHeader className="px-6 pt-6">
+            <DialogTitle>{progressClient ? `${progressClient.name}'s client account` : "Client account"}</DialogTitle>
+          </DialogHeader>
+          {progressClient && <ClientProgressPanel client={progressClient} />}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
