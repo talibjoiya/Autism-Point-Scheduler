@@ -40,7 +40,7 @@ export function Layout({ children }: LayoutProps) {
   };
 
   const navItems = [
-    ...(user?.role === "admin" ? [{ name: "Dashboard", href: "/dashboard", icon: LayoutDashboard }] : []),
+    ...(user?.role === "admin" || user?.role === "client" ? [{ name: "Dashboard", href: "/dashboard", icon: LayoutDashboard }] : []),
     { name: "Timeslots", href: "/timeslots", icon: CalendarDays },
     ...(user?.role === "admin" ? [
       { name: "User Management", href: "/users", icon: UsersRound },

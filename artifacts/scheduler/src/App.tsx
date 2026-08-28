@@ -23,7 +23,7 @@ function RootRedirect() {
   if (isLoading) return null;
   if (!user) return <Redirect to="/login" />;
   
-  if (user.role === "admin") return <Redirect to="/dashboard" />;
+  if (user.role === "admin" || user.role === "client") return <Redirect to="/dashboard" />;
   return <Redirect to="/timeslots" />;
 }
 

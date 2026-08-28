@@ -52,7 +52,7 @@ export default function Login() {
       const response = await loginMutation.mutateAsync({ data });
       queryClient.setQueryData(getGetMeQueryKey(), response.user);
       toast({ title: "Welcome back!", description: "You have successfully signed in." });
-      setLocation(response.user.role === "admin" ? "/dashboard" : "/timeslots");
+      setLocation(response.user.role === "admin" || response.user.role === "client" ? "/dashboard" : "/timeslots");
     } catch (error: any) {
       toast({
         title: "Sign in failed",

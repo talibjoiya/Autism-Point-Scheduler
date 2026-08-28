@@ -7,8 +7,10 @@ import {
   useListUsers,
   useListServices,
 } from "@workspace/api-client-react";
+import type { User } from "@workspace/api-client-react";
 import { Layout } from "@/components/layout";
 import { RequireAuth, useAuth } from "@/lib/auth-context";
+import { ClientProgressDashboard } from "@/components/ClientProgressDashboard";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -43,7 +45,7 @@ import {
 
 export default function Dashboard() {
   return (
-    <RequireAuth allowedRoles={["admin"]}>
+    <RequireAuth allowedRoles={["admin", "client"]}>
       <Layout>
         <DashboardContent />
       </Layout>
@@ -117,6 +119,28 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 function DashboardContent() {
   const { user } = useAuth();
+  if (user?.role === "client") return <ClientDashboardContent client={user} />;
+  if (!user) return null;
+  return <AdminDashboardContent user={user} />;
+}
+
+function ClientDashboardContent({ client }: { client: User }) {
+  return (
+    <div className="p-6 max-w-5xl mx-auto space-y-8">
+      <div>
+        <h1 className="text-2xl font-bold text-foreground">
+          Welcome back, {client.name.split(" ")[0]}
+        </h1>
+        <p className="text-sm text-muted-foreground mt-1">
+          Here is your progress overview.
+        </p>
+      </div>
+      <ClientProgressDashboard client={client} />
+    </div>
+  );
+}
+
+function AdminDashboardContent({ user }: { user: User }) {
   const { data: stats, isLoading: statsLoading } = useGetStatsOverview({
     query: { refetchInterval: 30000 },
   });
